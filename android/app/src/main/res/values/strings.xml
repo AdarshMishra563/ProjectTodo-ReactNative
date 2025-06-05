@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ProjectTodo</string>
+    <string name="default_web_client_id">903202728181-ndf0t06toltn1f0aj6cucoa7pm1dmdi5.apps.googleusercontent.com</string>
+
 </resources>
