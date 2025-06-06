@@ -138,23 +138,26 @@ if(!token || !user){
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#111' }}>
 
     <View style={styles.container}>
    
       <View style={styles.topView}>
   <View style={{ flexDirection: "row", flex: 1, alignItems: 'center', justifyContent: 'space-between' }}>
-    <View style={{ flexDirection: "row", alignItems: 'center' }}>
-      <Image
-        source={{
-          uri: user.picture
-            ? user.picture
-            : 'https://up.yimg.com/ib/th?id=OIP.UzzlrDvFoX5QUT4uuDQIdgHaHa&pid=Api&rs=1&c=1&qlt=95&w=104&h=104',
-        }}
-        style={styles.taskImage}
-      />
-      <Text style={{ fontSize: 18, textTransform: 'capitalize' }}>{user.name}</Text>
-    </View>
+    <View style={{ flexDirection: "row", alignItems: 'center', flexWrap: 'wrap', maxWidth: '100%' }}>
+  <Image
+    source={{
+      uri: user.picture
+        ? user.picture
+        : 'https://up.yimg.com/ib/th?id=OIP.UzzlrDvFoX5QUT4uuDQIdgHaHa&pid=Api&rs=1&c=1&qlt=95&w=104&h=104',
+    }}
+    style={{ width: 50, height: 50, borderRadius: 25, marginRight: 10 }}
+  />
+  <Text style={{ fontSize: 18, textTransform: 'capitalize', flexShrink: 1, flexWrap: 'wrap' }}>
+    {user.name}
+  </Text>
+</View>
+
 
     <View style={{ flexDirection: 'row' }}>
       <TouchableOpacity
@@ -167,7 +170,7 @@ if(!token || !user){
           marginRight: 8, 
         }}
       >
-        <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>Create Todo</Text>
+        <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>+</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -234,7 +237,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f5f5f5',
+    top:30,
+    backgroundColor: '#111',
   },
  topView: {
   padding: 12,

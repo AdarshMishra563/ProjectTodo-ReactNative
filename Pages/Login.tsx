@@ -84,9 +84,9 @@ console.log(res)
         email,
         password
       });
-      if (res?.data?.token) {
-        dispatch(login(res.data));
-        navigation.navigate('Dashboard')
+      if (res.data?.token) {
+      dispatch(login(res.data));
+  navigation.navigate('Dashboard')
        
       }
     } catch (err) {
