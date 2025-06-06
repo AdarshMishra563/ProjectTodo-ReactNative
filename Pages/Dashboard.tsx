@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, Image, SafeAreaView } from 'react-native';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import FixedView from './Fixedviewchild'
 import UpdateTask from './UpdateTask';
 import Loading from './Loading';
 import EditTaskModal from './UpdateTask';
+import CreateTaskForm from './CreateTodo';
+import { useNavigation } from '@react-navigation/native';
+import { logout } from '../redux/slice';
+
 
 const TaskDashboard = ({ onClick, j }) => {
   const [tasks, setTasks] = useState([]);
@@ -15,9 +19,18 @@ const TaskDashboard = ({ onClick, j }) => {
   const [page, setPage] = useState(false);
   const [change, setChange] = useState(0);
   const [deleteLoadingId, setDeleteLoadingId] = useState(null);
+  const [create, setcreate] = useState(false);
+  const [close, setclose] = useState(false);
+const navigation=useNavigation();
+  const { token ,user} = useSelector(state => state.user);
+  const dispatch=useDispatch();
+  useEffect(()=>{
 
-  const {token} = useSelector(state => state.user);
+if(!token || !user){
+    navigation.navigate("Login")
+}
 
+  },[token,user])
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -36,7 +49,7 @@ const TaskDashboard = ({ onClick, j }) => {
     };
 
     fetchTasks();
-  }, [change, j,  token]);
+  }, [change, j, token]);
 
   const handleEdit = (task) => {
     setCurrentTask(task);
@@ -59,45 +72,54 @@ const TaskDashboard = ({ onClick, j }) => {
 
   const renderItem = ({ item }) => {
     const isOverdue = new Date(item.dueDate) < new Date();
+
     
+    const statusColor = item.status === 'Done'
+      ? 'green'
+      : item.status === 'In Progress'
+        ? 'orange'
+        : 'red';
+
     return (
-      <View style={[styles.taskItem, isOverdue && styles.overdueTask]}>
-        <View style={styles.taskHeader}>
-          <Text style={styles.taskTitle}>{item.title}</Text>
-          <Text style={styles.taskPriority}>{item.priority}</Text>
-        </View>
-        
-        <Text style={styles.taskDescription}>{item.description}</Text>
-        
-        <View style={styles.taskMeta}>
-          <Text style={styles.taskDate}>Due: {new Date(item.dueDate).toLocaleDateString()}</Text>
-          <Text style={styles.taskStatus}>Status: {item.status}</Text>
-        </View>
-        
-        <View style={styles.taskMeta}>
-          <Text style={styles.taskCreator}>Created by: {item.createdBy?.name || 'You'}</Text>
-         
-        </View>
-        
-        <View style={styles.actionButtons}>
-          <TouchableOpacity 
-            style={styles.editButton} 
-            onPress={() => handleEdit(item)}
-          >
-            <Text style={styles.buttonText}>Edit</Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={styles.deleteButton} 
-            onPress={() => handleDelete(item._id)}
-            disabled={deleteLoadingId === item._id}
-          >
-            {deleteLoadingId === item._id ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Text style={styles.buttonText}>Delete</Text>
-            )}
-          </TouchableOpacity>
+      <View style={styles.taskItemContainer}>
+        <View style={[styles.statusIndicator, { backgroundColor: statusColor }]} />
+        <View style={[styles.taskItem, isOverdue && styles.overdueTask]}>
+          <View style={styles.taskHeader}>
+            <Text style={styles.taskTitle}>{item.title}</Text>
+            <Text style={styles.taskPriority}>{item.priority}</Text>
+          </View>
+
+          <Text style={styles.taskDescription}>{item.description}</Text>
+
+          <View style={styles.taskMeta}>
+            <Text style={styles.taskDate}>Due: {new Date(item.dueDate).toLocaleDateString()}</Text>
+            <Text style={styles.taskStatus}>Status: {item.status}</Text>
+          </View>
+
+          <View style={styles.taskMeta}>
+            <Text style={styles.taskCreator}>Created by: {item.createdBy?.name || 'You'}</Text>
+          </View>
+
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => handleEdit(item)}
+            >
+              <Text style={styles.buttonText}>Edit</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handleDelete(item._id)}
+              disabled={deleteLoadingId === item._id}
+            >
+              {deleteLoadingId === item._id ? (
+                <ActivityIndicator color="white" />
+              ) : (
+                <Text style={styles.buttonText}>Delete</Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
@@ -111,14 +133,77 @@ const TaskDashboard = ({ onClick, j }) => {
     return <Loading />;
   }
 
+  const addTodo = () => {
+    setcreate(true);
+  };
+
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f5f5f5' }}>
+
     <View style={styles.container}>
+   
+      <View style={styles.topView}>
+  <View style={{ flexDirection: "row", flex: 1, alignItems: 'center', justifyContent: 'space-between' }}>
+    <View style={{ flexDirection: "row", alignItems: 'center' }}>
+      <Image
+        source={{
+          uri: user.picture
+            ? user.picture
+            : 'https://up.yimg.com/ib/th?id=OIP.UzzlrDvFoX5QUT4uuDQIdgHaHa&pid=Api&rs=1&c=1&qlt=95&w=104&h=104',
+        }}
+        style={styles.taskImage}
+      />
+      <Text style={{ fontSize: 18, textTransform: 'capitalize' }}>{user.name}</Text>
+    </View>
+
+    <View style={{ flexDirection: 'row' }}>
+      <TouchableOpacity
+        onPress={addTodo}
+        style={{
+          backgroundColor: '#4CAF50',
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+          borderRadius: 5,
+          marginRight: 8, 
+        }}
+      >
+        <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>Create Todo</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => {
+        
+         dispatch(logout())
+        }}
+        style={{
+          backgroundColor: '#e74c3c',
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+          borderRadius: 5,
+        }}
+      >
+        <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>Logout</Text>
+      </TouchableOpacity>
+    </View>
+
+  </View>
+</View>
+
+
+      {create && (
+        <CreateTaskForm
+          visible={create}
+          onClose={() => { setcreate(false); setclose(true); }}
+          onOkay={() => { refreshTasks(); setcreate(false); }}
+        />
+      )}
+
       {tasks.length === 0 ? (
         <View style={styles.emptyState}>
-          <TouchableOpacity style={styles.addButton} onPress={onClick}>
+          <TouchableOpacity style={styles.addButton} onPress={addTodo}>
             <Text style={styles.addButtonText}>+</Text>
           </TouchableOpacity>
-          <Text style={styles.emptyStateText}>Create Your First Task</Text>
+          <Text style={styles.emptyStateText}>Create Your First Todo</Text>
         </View>
       ) : (
         <>
@@ -130,13 +215,18 @@ const TaskDashboard = ({ onClick, j }) => {
             refreshing={loading}
             onRefresh={refreshTasks}
           />
-          
-         
-           <EditTaskModal isOpen={modal} onClose={() => setModal(false)} task={currentTask} onUpdate={refreshTasks}/>
-         
+
+          {modal && (
+            <EditTaskModal
+              isOpen={modal}
+              onClose={() => setModal(false)}
+              task={currentTask}
+              onUpdate={refreshTasks}
+            />
+          )}
         </>
       )}
-    </View>
+    </View></SafeAreaView>
   );
 };
 
@@ -146,23 +236,39 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#f5f5f5',
   },
+ topView: {
+  padding: 12,
+  backgroundColor: '#4a90e2',
+  borderRadius: 8,
+  marginBottom: 16,
+  height: 70, 
+  justifyContent: 'center', 
+},
+  topViewText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: '600',
+  },
   listContainer: {
     paddingBottom: 20,
   },
-  taskItem: {
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 16,
+  taskItemContainer: {
+    flexDirection: 'row',
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    borderRadius: 10,
+    overflow: 'hidden',
     elevation: 3,
+    backgroundColor: 'white',
+  },
+  statusIndicator: {
+    width: 6,
+    backgroundColor: 'grey',
+  },
+  taskItem: {
+    flex: 1,
+    padding: 16,
   },
   overdueTask: {
-    borderLeftWidth: 4,
-    borderLeftColor: 'red',
     backgroundColor: '#fff0f0',
   },
   taskHeader: {
@@ -205,10 +311,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
-  taskAssignee: {
-    fontSize: 12,
-    color: '#666',
-  },
   actionButtons: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
@@ -229,6 +331,12 @@ const styles = StyleSheet.create({
     minWidth: 60,
     alignItems: 'center',
   },
+  taskImage: {
+  width: 50,
+  height: 50,
+  borderRadius: 25,
+  marginRight: 10,
+},
   buttonText: {
     color: 'white',
     fontSize: 14,

@@ -7,13 +7,16 @@ import {
   StyleSheet, 
   ActivityIndicator 
 } from 'react-native';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome';
+
+
 
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { logout, login } from '../redux/slice';
 import { useNavigation } from '@react-navigation/native';
 import { GoogleSignin,GoogleSigninButton } from '@react-native-google-signin/google-signin';
+
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -118,7 +121,9 @@ console.log(res)
           secureTextEntry={hide}
         />
         <TouchableOpacity onPress={() => setHide(!hide)} style={styles.eyeIcon}>
-<FontAwesome name={hide ? "eye-slash" : "eye"} size={24} color="#666" />
+<Text style={{top:4,color:"gray"}}>{hide?"See":"Hide"}</Text>
+
+
         </TouchableOpacity>
       </View>
 
