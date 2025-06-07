@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, Image, SafeAreaView, StatusBar, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity,SafeAreaView, FlatList, ActivityIndicator, Image,  StatusBar, Keyboard, TouchableWithoutFeedback, Platform } from 'react-native';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import FixedView from './Fixedviewchild'
@@ -13,7 +13,7 @@ import { Filter } from 'react-native-svg';
 import FilterComponent from './Filter';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
-
+import { SafeAreaProvider, useSafeAreaInsets  } from 'react-native-safe-area-context';
 const TaskDashboard = ({ onClick, j }) => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -103,7 +103,7 @@ console.log("serach without ",JSON.stringify(search))
     console.error('Filter error:', err);
   }
 };
-
+const insets = useSafeAreaInsets();
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -231,9 +231,11 @@ console.log("serach without ",JSON.stringify(search))
 
    
   return (
-   <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+    <SafeAreaProvider><StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
+
+   <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent', paddingTop: insets.top    }}>
        
-<StatusBar backgroundColor="black" barStyle="light-content" />
+
     <View style={styles.container}>
        
       <View style={styles.topView}>
@@ -331,7 +333,7 @@ console.log("serach without ",JSON.stringify(search))
           )}
         </>
       )}
-    </View></SafeAreaView>
+    </View></SafeAreaView></SafeAreaProvider>
   );
 };
 
@@ -339,7 +341,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    top:30,
+    
     backgroundColor: '#FFFFFF',
   },
     metaItem: {
