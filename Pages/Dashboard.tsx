@@ -233,7 +233,7 @@ console.log("serach without ",JSON.stringify(search))
   return (
    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
        
-<StatusBar backgroundColor="#1F2937" barStyle="light-content" />
+<StatusBar backgroundColor="black" barStyle="light-content" />
     <View style={styles.container}>
        
       <View style={styles.topView}>
