@@ -121,7 +121,12 @@ console.log(res)
           secureTextEntry={hide}
         />
         <TouchableOpacity onPress={() => setHide(!hide)} style={styles.eyeIcon}>
-<Text style={{top:4,color:"gray"}}>{hide?"See":"Hide"}</Text>
+<View style={{top:4}}>  <Icon
+        name={hide ? 'eye' : 'eye-slash'}
+        size={24}
+        color="gray"
+        style={{ bottom: 2 }}
+      /></View>
 
 
         </TouchableOpacity>

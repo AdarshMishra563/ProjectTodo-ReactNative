@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { logout } from '../redux/slice';
 import { Filter } from 'react-native-svg';
 import FilterComponent from './Filter';
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const TaskDashboard = ({ onClick, j }) => {
   const [tasks, setTasks] = useState([]);
@@ -245,7 +245,7 @@ console.log("serach without ",JSON.stringify(search))
           marginRight: 8, 
         }}
       >
-        <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>+</Text>
+       <Icon name="plus" size={22} color="#374151" />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -254,13 +254,14 @@ console.log("serach without ",JSON.stringify(search))
          dispatch(logout())
         }}
         style={{
-          backgroundColor: '#e74c3c',
-          paddingHorizontal: 16,
+          backgroundColor: '#1F2937',
+          paddingHorizontal: 12,
           paddingVertical: 8,
           borderRadius: 5,
         }}
       >
-        <Text style={{ color: 'white', fontSize: 16, fontWeight: 'bold' }}>Logout</Text>
+             <Icon name="sign-out" size={22} color="gray" />
+
       </TouchableOpacity>
     </View>
 
