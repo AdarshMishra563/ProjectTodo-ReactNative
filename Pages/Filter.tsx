@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, TextInput, Modal, Button, Platform } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
+import Icon from 'react-native-vector-icons/FontAwesome';
 const FilterComponent = ({ onApplyFilter, onSearch }) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [search, setSearch] = useState('');
@@ -73,7 +73,7 @@ const FilterComponent = ({ onApplyFilter, onSearch }) => {
     <View style={styles.container}>
 
       <View style={styles.searchContainer}>
-        <Text style={styles.searchIcon}>Search</Text>
+         <Icon name="search" size={20} color="white" />
         <TextInput
           style={styles.searchInput}
           placeholder="Search your tasks"
