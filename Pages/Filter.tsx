@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, TextInput, Modal, Button, Platform } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, TextInput, Modal, Button, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Icon from 'react-native-vector-icons/FontAwesome';
 const FilterComponent = ({ onApplyFilter, onSearch }) => {
@@ -7,13 +7,19 @@ const FilterComponent = ({ onApplyFilter, onSearch }) => {
   const [search, setSearch] = useState('');
   const [debounce, setDebounce] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
-
+  const inputRef = useRef(null);
   const [filterData, setFilterData] = useState({
     status: [],
     priority: [],
     dueDate: ''
   });
-
+  const dismissKeyboard = () => {
+    if (inputRef.current) {
+      inputRef.current.blur();
+    } else {
+      Keyboard.dismiss();
+    }
+  };
   React.useEffect(() => {
     console.log("debounce", debounce)
     const timeout = setTimeout(() => {
@@ -26,7 +32,7 @@ const FilterComponent = ({ onApplyFilter, onSearch }) => {
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [debounce, filterData]);
+  }, [debounce]);
 
   const handleCheckboxChange = (type, value) => {
     setFilterData(prev => {
@@ -68,13 +74,32 @@ const FilterComponent = ({ onApplyFilter, onSearch }) => {
       search: ''
     });
   };
+   const handlePress = (event) => {
+    if (!inputRef.current) return;
+
+    inputRef.current.measure((fx, fy, width, height, px, py) => {
+      const { pageX, pageY } = event.nativeEvent;
+
+      if (
+        pageX < px ||
+        pageX > px + width ||
+        pageY < py ||
+        pageY > py + height
+      ) {
+        Keyboard.dismiss();
+      }
+    });
+  };
+
 
   return (
+   <TouchableWithoutFeedback onPress={handlePress}>
     <View style={styles.container}>
 
       <View style={styles.searchContainer}>
          <Icon name="search" size={20} color="white" />
         <TextInput
+        ref={inputRef}
           style={styles.searchInput}
           placeholder="Search your tasks"
           placeholderTextColor="gray"
@@ -160,7 +185,7 @@ const FilterComponent = ({ onApplyFilter, onSearch }) => {
           onChange={handleDateChange}
         />
       )}
-    </View>
+    </View></TouchableWithoutFeedback>
   );
 };
 

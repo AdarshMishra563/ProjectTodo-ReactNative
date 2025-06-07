@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, Image, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator, Image, SafeAreaView, StatusBar, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import FixedView from './Fixedviewchild'
@@ -12,6 +12,7 @@ import { logout } from '../redux/slice';
 import { Filter } from 'react-native-svg';
 import FilterComponent from './Filter';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import Feather from 'react-native-vector-icons/Feather';
 
 const TaskDashboard = ({ onClick, j }) => {
   const [tasks, setTasks] = useState([]);
@@ -94,8 +95,10 @@ console.log("serach without ",JSON.stringify(search))
         headers: { Authorization: `${token}` }
       }
     );
-
-    setFilteredTasks(res.data);
+  const sortedTasks = res.data.sort((a, b) => {
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      });
+    setFilteredTasks(sortedTasks);
   } catch (err) {
     console.error('Filter error:', err);
   }
@@ -109,7 +112,11 @@ console.log("serach without ",JSON.stringify(search))
         const response = await axios.get('https://backend-taskmanagement-k0md.onrender.com/api/auth/tasks', {
           headers: { Authorization: `${token}` }
         });
-        setTasks(response.data);
+         const sortedTasks = response.data.sort((a, b) => {
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      });
+        setTasks(sortedTasks);
+        setFilteredTasks(sortedTasks)
         setPage(true);
       } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -159,26 +166,38 @@ console.log("serach without ",JSON.stringify(search))
         <View style={[styles.taskItem, isOverdue && styles.overdueTask]}>
           <View style={styles.taskHeader}>
             <Text style={styles.taskTitle}>{item.title}</Text>
-            <Text style={styles.taskPriority}>{item.priority}</Text>
+            <View style={[styles.priorityBadge, 
+                         { backgroundColor: item.priority === 'High' ? '#FEE2E2' : 
+                                           item.priority === 'Medium' ? '#FEF3C7' : '#D1FAE5' }]}>
+              <Text style={[styles.priorityText, 
+                          { color: item.priority === 'High' ? '#B91C1C' : 
+                                  item.priority === 'Medium' ? '#92400E' : '#065F46' }]}>
+                {item.priority}
+              </Text>
+            </View>
           </View>
 
           <Text style={styles.taskDescription}>{item.description}</Text>
 
           <View style={styles.taskMeta}>
-            <Text style={styles.taskDate}>Due: {new Date(item.dueDate).toLocaleDateString()}</Text>
+         <View style={{flexDirection:"row"}}> <Feather name="calendar" size={14} color="#6B7280" />
+              <Text style={styles.metaText}>
+                {new Date(item.dueDate).toLocaleDateString()}
+                {isOverdue && <Text style={{color: '#EF4444'}}> • Overdue</Text>}
+              </Text></View>
             <Text style={styles.taskStatus}>Status: {item.status}</Text>
           </View>
-
-          <View style={styles.taskMeta}>
-            <Text style={styles.taskCreator}>Created by: {item.createdBy?.name || 'You'}</Text>
+ <View style={styles.metaItem}>
+            <Text style={styles.taskCreator}><Feather name="user" size={14} color="#6B7280" />  {  item.createdBy?.name || 'You'}</Text>
           </View>
+         
 
           <View style={styles.actionButtons}>
             <TouchableOpacity
               style={styles.editButton}
               onPress={() => handleEdit(item)}
             >
-              <Text style={styles.buttonText}>Edit</Text>
+              <Feather name="edit" size={16} color="#222222" />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -187,9 +206,9 @@ console.log("serach without ",JSON.stringify(search))
               disabled={deleteLoadingId === item._id}
             >
               {deleteLoadingId === item._id ? (
-                <ActivityIndicator color="white" />
+                <ActivityIndicator color="black" />
               ) : (
-                <Text style={styles.buttonText}>Delete</Text>
+                <Feather name="trash-2" size={16} color="#EF4444" />
               )}
             </TouchableOpacity>
           </View>
@@ -212,8 +231,9 @@ console.log("serach without ",JSON.stringify(search))
 
    
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#222' }}>
-
+   <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+       
+<StatusBar backgroundColor="#1F2937" barStyle="light-content" />
     <View style={styles.container}>
        
       <View style={styles.topView}>
@@ -236,16 +256,19 @@ console.log("serach without ",JSON.stringify(search))
 
     <View style={{ flexDirection: 'row' }}>
       <TouchableOpacity
-        onPress={addTodo}
+        onPress={()=>{Keyboard.dismiss();
+          setTimeout(()=>{addTodo()},100)
+        }}
         style={{
           backgroundColor: '#4CAF50',
           paddingHorizontal: 16,
           paddingVertical: 8,
-          borderRadius: 5,
+          borderRadius: 50,
           marginRight: 8, 
+
         }}
       >
-       <Icon name="plus" size={22} color="#374151" />
+     <Feather name="plus" size={20} color="#FFFFFF" />
       </TouchableOpacity>
 
       <TouchableOpacity
@@ -255,9 +278,9 @@ console.log("serach without ",JSON.stringify(search))
         }}
         style={{
           backgroundColor: '#1F2937',
-          paddingHorizontal: 12,
+          paddingHorizontal: 10,
           paddingVertical: 8,
-          borderRadius: 5,
+          borderRadius: 50,
         }}
       >
              <Icon name="sign-out" size={22} color="gray" />
@@ -317,13 +340,17 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     top:30,
-    backgroundColor: '#222',
+    backgroundColor: '#FFFFFF',
+  },
+    metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
  topView: {
-  padding: 12,
-  backgroundColor: 'gray',
+  padding: 10,
+  backgroundColor: '#FFFFFF',
   borderRadius: 18,
-  marginBottom: 6,
+  marginBottom: 2,
   height: 70, 
   justifyContent: 'center', 
 },
@@ -346,6 +373,11 @@ const styles = StyleSheet.create({
   statusIndicator: {
     width: 6,
     backgroundColor: 'grey',
+  },
+    metaText: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginLeft: 4,
   },
   taskItem: {
     flex: 1,
@@ -376,6 +408,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#555',
     marginBottom: 8,
+    
+  },
+   priorityBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  priorityText: {
+    fontSize: 12,
+    fontWeight: '500',
   },
   taskMeta: {
     flexDirection: 'row',
@@ -400,18 +443,18 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   editButton: {
-    backgroundColor: '#4a90e2',
-    paddingHorizontal: 12,
+    backgroundColor: 'transparent',
+    paddingHorizontal: 6,
     paddingVertical: 6,
     borderRadius: 5,
     marginRight: 8,
   },
   deleteButton: {
-    backgroundColor: '#e74c3c',
-    paddingHorizontal: 12,
+    backgroundColor: 'transparent',
+    paddingHorizontal: 4,
     paddingVertical: 6,
     borderRadius: 5,
-    minWidth: 60,
+    minWidth: 40,
     alignItems: 'center',
   },
   taskImage: {
