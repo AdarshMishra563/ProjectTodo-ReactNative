@@ -9,6 +9,8 @@ import EditTaskModal from './UpdateTask';
 import CreateTaskForm from './CreateTodo';
 import { useNavigation } from '@react-navigation/native';
 import { logout } from '../redux/slice';
+import { Filter } from 'react-native-svg';
+import FilterComponent from './Filter';
 
 
 const TaskDashboard = ({ onClick, j }) => {
@@ -21,6 +23,7 @@ const TaskDashboard = ({ onClick, j }) => {
   const [deleteLoadingId, setDeleteLoadingId] = useState(null);
   const [create, setcreate] = useState(false);
   const [close, setclose] = useState(false);
+    const [filteredTasks, setFilteredTasks] = useState([]);
 const navigation=useNavigation();
   const { token ,user} = useSelector(state => state.user);
   const dispatch=useDispatch();
@@ -31,6 +34,73 @@ if(!token || !user){
 }
 
   },[token,user])
+
+
+const handleSearch = async (search,filterData) => {
+ try {
+    const queryParams = new URLSearchParams();
+    
+   
+    if (filterData.status.length > 0) queryParams.append('status', JSON.stringify(filterData.status));
+    if (filterData.priority.length > 0) queryParams.append('priority', JSON.stringify(filterData.priority));
+    if (filterData.dueDate) queryParams.append('dueDate', filterData.dueDate);
+    
+   
+    if (search.trim() !== '') {
+      queryParams.append('search', search);
+    }else{
+      const res = await axios.get(
+      `https://backend-taskmanagement-k0md.onrender.com/api/auth/tasks?${queryParams.toString()}`,
+      {
+        headers: { Authorization: `${token}` }
+      }
+    );
+
+   setFilteredTasks(res.data)
+    
+    }
+
+    const res = await axios.get(
+      `https://backend-taskmanagement-k0md.onrender.com/api/auth/tasks?${queryParams.toString()}`,
+      {
+        headers: { Authorization: `${token}` }
+      }
+    );
+
+   setFilteredTasks(res.data)
+    
+    
+  } catch (err) {
+    console.error('Filter error:', err);
+  }
+};
+
+const handleApplyFilter = async (data) => {
+  const { search, ...filterData } = data;
+  try {
+    const queryParams = new URLSearchParams();
+console.log("serach without ",JSON.stringify(search))
+  
+    if (filterData.status.length > 0) queryParams.append('status', JSON.stringify(filterData.status));
+    if (filterData.priority.length > 0) queryParams.append('priority', JSON.stringify(filterData.priority));
+    if (filterData.dueDate) queryParams.append('dueDate', filterData.dueDate);
+
+    queryParams.append('search', search);
+
+    
+    const res = await axios.get(
+      `https://backend-taskmanagement-k0md.onrender.com/api/auth/tasks?${queryParams.toString()}`,
+      {
+        headers: { Authorization: `${token}` }
+      }
+    );
+
+    setFilteredTasks(res.data);
+  } catch (err) {
+    console.error('Filter error:', err);
+  }
+};
+
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -81,7 +151,10 @@ if(!token || !user){
         : 'red';
 
     return (
+      
       <View style={styles.taskItemContainer}>
+        
+    
         <View style={[styles.statusIndicator, { backgroundColor: statusColor }]} />
         <View style={[styles.taskItem, isOverdue && styles.overdueTask]}>
           <View style={styles.taskHeader}>
@@ -137,12 +210,14 @@ if(!token || !user){
     setcreate(true);
   };
 
+   
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#111' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#222' }}>
 
     <View style={styles.container}>
-   
+       
       <View style={styles.topView}>
+        
   <View style={{ flexDirection: "row", flex: 1, alignItems: 'center', justifyContent: 'space-between' }}>
     <View style={{ flexDirection: "row", alignItems: 'center', flexWrap: 'wrap', maxWidth: '100%' }}>
   <Image
@@ -190,7 +265,10 @@ if(!token || !user){
     </View>
 
   </View>
-</View>
+  
+</View><FilterComponent   onApplyFilter={handleApplyFilter}
+        onSearch={handleSearch} />
+
 
 
       {create && (
@@ -211,7 +289,7 @@ if(!token || !user){
       ) : (
         <>
           <FlatList
-            data={tasks}
+            data={filteredTasks.length > 0 ? filteredTasks : tasks}
             renderItem={renderItem}
             keyExtractor={item => item._id}
             contentContainerStyle={styles.listContainer}
@@ -238,13 +316,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     top:30,
-    backgroundColor: '#111',
+    backgroundColor: '#222',
   },
  topView: {
   padding: 12,
-  backgroundColor: '#4a90e2',
-  borderRadius: 8,
-  marginBottom: 16,
+  backgroundColor: 'gray',
+  borderRadius: 18,
+  marginBottom: 6,
   height: 70, 
   justifyContent: 'center', 
 },
