@@ -236,8 +236,24 @@ const insets = useSafeAreaInsets();
    <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent', paddingTop: insets.top    }}>
        
 
-    <View style={styles.container}>
-       
+    <View style={[styles.container,{position:"relative",flex:1}]}>
+             <TouchableOpacity
+        onPress={()=>{Keyboard.dismiss();
+          setTimeout(()=>{addTodo()},100)
+        }}
+        style={{ position:"absolute",
+          bottom:58,right:18,
+          backgroundColor: '#4CAF50',
+          paddingHorizontal: 16,
+          paddingVertical: 8,
+          borderRadius: 50,
+          marginRight: 8, zIndex:99
+
+        }}
+      >
+     <Feather name="plus" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
+
       <View style={styles.topView}>
         
   <View style={{ flexDirection: "row", flex: 1, alignItems: 'center', justifyContent: 'space-between' }}>
@@ -257,21 +273,6 @@ const insets = useSafeAreaInsets();
 
 
     <View style={{ flexDirection: 'row' }}>
-      <TouchableOpacity
-        onPress={()=>{Keyboard.dismiss();
-          setTimeout(()=>{addTodo()},100)
-        }}
-        style={{
-          backgroundColor: '#4CAF50',
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          borderRadius: 50,
-          marginRight: 8, 
-
-        }}
-      >
-     <Feather name="plus" size={20} color="#FFFFFF" />
-      </TouchableOpacity>
 
       <TouchableOpacity
         onPress={() => {
@@ -370,7 +371,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     elevation: 3,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
   },
   statusIndicator: {
     width: 6,
