@@ -28,6 +28,7 @@ Task search and filtering
 Notifications
 
 Push notifications for due tasks
+Swipable Lists
 
 Scheduled reminders (today and tomorrow)
 
