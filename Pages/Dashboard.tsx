@@ -259,7 +259,7 @@ const renderItem = ({ item }) => {
         )}
       </TouchableOpacity>
     ) : (
-      <View style={{ width: 140 }} />
+      <View style={{ width: 140 }} ><Text style={styles.completeText}>Completed</Text></View>
     )}
   </View>
 
