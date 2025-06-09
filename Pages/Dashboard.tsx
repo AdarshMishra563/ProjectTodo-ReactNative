@@ -147,6 +147,19 @@ const insets = useSafeAreaInsets();
       setDeleteLoadingId(null);
     }
   };
+  const markTaskAsDone = async (taskId) => {
+  try {
+    setCompletedTaskId(taskId);
+    const res = await axios.put(`https://backend-taskmanagement-k0md.onrender.com/api/auth/tasks/${taskId}`, { status: 'Done' }, {
+      headers: { Authorization: `${token}` }
+    });
+    await refreshTasks();
+  } catch (err) {
+    console.error('Error marking task as done:', err);
+  } finally {
+    setCompletedTaskId(null);
+  }
+};
  const categorizeTasks = (taskList) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
