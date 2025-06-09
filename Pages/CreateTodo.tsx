@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,7 @@ import {
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
-
+import PushNotification from 'react-native-push-notification';
 const CreateTaskForm = ({ visible, onClose, onOkay }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -27,7 +27,7 @@ const CreateTaskForm = ({ visible, onClose, onOkay }) => {
     priority: '',
   });
   
-  const {token} = useSelector(state => state.user);
+  const {token,user} = useSelector(state => state.user);
   const [errors, setErrors] = useState({});
 
   const validate = () => {
@@ -38,6 +38,27 @@ const CreateTaskForm = ({ visible, onClose, onOkay }) => {
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
+useEffect(() => {
+  PushNotification.createChannel(
+    {
+      channelId: 'task-channel',
+      channelName: 'Task Notifications',
+    },
+    (created) => console.log(`createChannel returned '${created}'`)
+  );
+}, []);
+const triggerNotification = (title, message, imageUrl) => {
+  PushNotification.localNotification({
+    channelId: 'task-channel',
+    title: title,
+    message: message,
+    bigPictureUrl: imageUrl, 
+    largeIconUrl: imageUrl,  
+    smallIcon: 'ic_launcher', 
+    importance: 'high',
+    priority: 'high',
+  });
+};
 
   const handleChange = (name, value) => {
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -70,7 +91,11 @@ const CreateTaskForm = ({ visible, onClose, onOkay }) => {
         payload,
         { headers: { Authorization: `${token}` } }
       );
-
+ triggerNotification(
+      `${user.name} created a new task`, 
+      `📌 ${formData.title} | Due: ${formData.dueDate.toLocaleDateString()} | Priority: ${formData.priority}`,
+      user.picture
+    );
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);
