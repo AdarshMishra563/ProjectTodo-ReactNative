@@ -259,7 +259,7 @@ const renderItem = ({ item }) => {
         )}
       </TouchableOpacity>
     ) : (
-      <View style={{ width: 140 }} ><Text style={styles.completeText}>Completed</Text></View>
+      <><Feather name="check-square" size={18} color="#10B981" /> <Text style={styles.completeText}>Completed</Text></>
     )}
   </View>
 
