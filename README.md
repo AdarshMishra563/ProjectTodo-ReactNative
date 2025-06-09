@@ -1,97 +1,179 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+A feature-rich task management application built with React Native, Redux, and JWT authentication, with Firebase Google Sign-In integration.
 
-# Getting Started
+Features
+User Authentication
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+Firebase Google Sign-In
 
-## Step 1: Start Metro
+JWT token-based session management
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+Protected routes
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+User profile management
 
-```sh
-# Using npm
-npm start
+Task Management
 
-# OR using Yarn
-yarn start
-```
+Create, read, update, and delete tasks
 
-## Step 2: Build and run your app
+Task categorization (Today, Tomorrow, Upcoming, Overdue)
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+Priority levels (High, Medium, Low)
 
-### Android
+Status tracking (Todo, In Progress, Done)
 
-```sh
-# Using npm
-npm run android
+Due date management
 
-# OR using Yarn
-yarn android
-```
+Task search and filtering
 
-### iOS
+Notifications
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+Push notifications for due tasks
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+Scheduled reminders (today and tomorrow)
 
-```sh
-bundle install
-```
+Automatic notification cancellation for completed tasks
 
-Then, and every time you update your native dependencies, run:
+UI/UX
 
-```sh
-bundle exec pod install
-```
+Clean, intuitive interface
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+Task categorization with visual indicators
 
-```sh
-# Using npm
-npm run ios
+Responsive design for all screen sizes
 
-# OR using Yarn
-yarn ios
-```
+Loading states and empty state handling
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Technologies Used
+Frontend
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+React Native
 
-## Step 3: Modify your app
+React Navigation
 
-Now that you have successfully run the app, let's make changes!
+Redux Toolkit
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+Axios for API calls
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+React Native Vector Icons
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+Backend
 
-## Congratulations! :tada:
+Node.js
 
-You've successfully run and modified your React Native App. :partying_face:
+Express.js
 
-### Now what?
+MongoDB
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+JWT Authentication
 
-# Troubleshooting
+Services
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+Firebase Authentication (Google Sign-In)
 
-# Learn More
+React Native Push Notifications
 
-To learn more about React Native, take a look at the following resources:
+Installation
+Prerequisites
+Node.js (v14 or later)
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+npm or yarn
+
+React Native development environment setup
+
+Android Studio/Xcode for emulators
+
+Steps
+Clone the repository:
+
+bash
+git clone //copy the url
+cd task-management-app
+Install dependencies:
+
+bash
+npm install
+# or
+yarn install
+Set up Firebase:
+
+Create a Firebase project
+
+Enable Google Sign-In method
+
+Add your google-services.json (Android) and GoogleService-Info.plist (iOS) files
+
+Configure environment variables:
+Create a .env file in the root directory with your backend API URL:
+
+text
+API_BASE_URL=https://backend-taskmanagement-k0md.onrender.com/api/auth
+Run the app:
+
+bash
+npx react-native run-android
+# or
+npx react-native run-ios
+API Endpoints
+The app communicates with a backend API that provides the following endpoints:
+
+POST /api/auth/google - Google authentication
+
+GET /api/auth/tasks - Get all tasks (with filtering)
+
+POST /api/auth/tasks - Create a new task
+
+PUT /api/auth/tasks/:id - Update a task
+
+DELETE /api/auth/tasks/:id - Delete a task
+
+All endpoints (except authentication) require a valid JWT token in the Authorization header.
+
+Screens
+Login Screen - Google Sign-In
+
+Dashboard - Task overview with categories
+
+Task Detail - View and edit task details
+
+Create Task - Form for new task creation
+
+Profile - User profile information
+
+Security Features
+JWT token storage in Redux (client-side)
+
+Token expiration handling
+
+Protected routes
+
+Input validation
+
+Secure API calls with authorization headers
+
+Push Notifications
+The app implements local push notifications to remind users about:
+
+Tasks due today (morning reminder)
+
+Tasks due tomorrow (evening reminder)
+
+Notifications are automatically canceled when tasks are marked as complete
+
+Folder Structure
+text
+/src
+  /components      # Reusable components
+    CreateTodo.js  # Task creation form
+    Filter.js      # Task filtering component
+    Loading.js     # Loading indicator
+    UpdateTask.js  # Task edit modal
+  /redux          # Redux store and slices
+  /screens        # Main app screens
+  /utils          # Utility functions
+App.js            # Main app component
+
+
+
+
+License
+MIT License
