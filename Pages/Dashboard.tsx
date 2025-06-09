@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity,SafeAreaView, FlatList, ActivityIndicator, Image,  StatusBar, Keyboard, TouchableWithoutFeedback, Platform } from 'react-native';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,6 +13,7 @@ import { Filter } from 'react-native-svg';
 import FilterComponent from './Filter';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
+import { Swipeable } from 'react-native-gesture-handler';
 import PushNotification from 'react-native-push-notification';
 import { SafeAreaProvider, useSafeAreaInsets  } from 'react-native-safe-area-context';
 const TaskDashboard = ({ onClick, j }) => {
@@ -33,7 +34,7 @@ const navigation=useNavigation();
   const { token ,user} = useSelector(state => state.user);
   const dispatch=useDispatch();
 
-
+ const swipeableRef = useRef(null);
   PushNotification.configure({
   onNotification: function(notification) {
     console.log('NOTIFICATION:', notification);
@@ -201,6 +202,7 @@ const insets = useSafeAreaInsets();
   }, [change, j, token]);
 
   const handleEdit = (task) => {
+    
     setCurrentTask(task);
     setModal(true);
   };
@@ -262,8 +264,26 @@ const insets = useSafeAreaInsets();
 
   return { overdueTasks, todayTasks, tomorrowTasks, upcomingTasks };
 };
+ 
+  useEffect(() => {
+   
+  if (tasks.length ===1) {
+    setTimeout(() => {
+      if (swipeableRef.current) {
+      
+        
+        swipeableRef.current.openRight()
+        setTimeout(() => {
+          swipeableRef.current?.close();
+        }, 1000);
+      } else {
+      
+      }
+    }, 800);
+  }
+}, [ tasks]);
 
-const renderItem = ({ item }) => {
+const renderItem = ({ item,index }) => {
   const isOverdue = new Date(item.dueDate) < new Date();
 
   const statusColor = item.status === 'Done'
@@ -271,8 +291,20 @@ const renderItem = ({ item }) => {
     : item.status === 'In Progress'
       ? 'orange'
       : 'red';
+const renderLeftActions = () => (
+  <TouchableOpacity
+    style={styles.deleteAction}
+    onPress={() => handleDelete(item._id)}
+  >
+    <Feather name="trash-2" size={24} color="#fff" />
+    <Text style={styles.actionText}>Delete</Text>
+  </TouchableOpacity>
+);
 
   return (
+     <Swipeable key={index} ref= {swipeableRef}  renderRightActions={renderLeftActions}  
+          
+        >
     <View style={styles.taskItemContainer}>
       <View style={[styles.statusIndicator, { backgroundColor: statusColor }]} />
       <View style={[styles.taskItem, isOverdue && styles.overdueTask]}>
@@ -361,7 +393,7 @@ const renderItem = ({ item }) => {
 
 
       </View>
-    </View>
+    </View></Swipeable>
   );
 };
 
@@ -379,19 +411,19 @@ const renderItem = ({ item }) => {
   return (
     <FlatList
       data={sections}
-      renderItem={({ item }) => (
+      renderItem={({ item,index }) => (
         <View style={styles.sectionContainer}>
           {item.data.length > 0 && <Text style={styles.sectionHeader}>{item.title}</Text>}
           {
             item.data.map(task => (
               <View key={task._id}>
-                {renderItem({ item: task })}
+                {renderItem({ item: task,index })}
               </View>
             ))
           }
         </View>
       )}
-      keyExtractor={(item) => item.title}
+     keyExtractor={(item, index) => item._id || index.toString()}
       contentContainerStyle={styles.listContainer}
       refreshing={loading}
       onRefresh={refreshTasks}
@@ -567,6 +599,18 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingBottom: 20,
   },
+  deleteAction: {
+  backgroundColor: '#EF4444',
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: 80,
+  height: '94%',
+},
+actionText: {
+  color: '#fff',
+  fontWeight: '600',
+  marginTop: 5,
+},
   taskItemContainer: {
     flexDirection: 'row',
     marginBottom: 12,

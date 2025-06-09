@@ -44,7 +44,7 @@ useEffect(() => {
       channelId: 'task-channel',
       channelName: 'Task Notifications',
        channelDescription: "A channel to categorise task notifications",
-    importance: 4, // 4 = high
+    importance: 4, 
     vibrate: true,
     },
     (created) => console.log(`createChannel returned '${created}'`)
@@ -96,11 +96,11 @@ const triggerNotification = (title, message, imageUrl) => {
         payload,
         { headers: { Authorization: `${token}` } }
       );
- triggerNotification(
+setTimeout(()=>{ triggerNotification(
       `${user.name} created a new task`, 
       `📌 ${formData.title} | Due: ${formData.dueDate.toLocaleDateString()} | Priority: ${formData.priority}`,
       user.picture
-    );
+    );},4500)
       setSuccess(true);
       setTimeout(() => {
         setSuccess(false);

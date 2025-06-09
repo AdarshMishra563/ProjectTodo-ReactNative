@@ -10,6 +10,8 @@ import { PersistGate } from 'redux-persist/integration/react';
 import ForgotPassword from './Pages/ForgotPassword';
 import Dashboard from './Pages/Dashboard';
 import { PermissionsAndroid, Platform } from 'react-native';
+import Profile from './Pages/Profile';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 const Stack = createNativeStackNavigator();
 export default function App() {
 
@@ -18,11 +20,12 @@ export default function App() {
   return (
     <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
+           <GestureHandlerRootView style={{ flex: 1 }}>
     <NavigationContainer>
   
 <AppNavigator/>
     
-   </NavigationContainer></PersistGate></Provider>
+   </NavigationContainer></GestureHandlerRootView></PersistGate></Provider>
   )
 }
 
@@ -46,6 +49,7 @@ const AppNavigator = () => {
       <Stack.Screen name="SignUp" component={SignUp} />
       <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
       <Stack.Screen name="Dashboard" component={Dashboard}   />
+      <Stack.Screen name="Profile" component={Profile}/>
     </Stack.Navigator>
   );
 };
