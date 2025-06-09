@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity,SafeAreaView, FlatList, ActivityIndicator, Image,  StatusBar, Keyboard, TouchableWithoutFeedback, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity,SafeAreaView, FlatList, ActivityIndicator, Image,  StatusBar, Keyboard, TouchableWithoutFeedback, Platform, Dimensions } from 'react-native';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import FixedView from './Fixedviewchild'
@@ -34,6 +34,8 @@ const navigation=useNavigation();
   const { token ,user} = useSelector(state => state.user);
   const dispatch=useDispatch();
 
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
  const swipeableRef = useRef(null);
   PushNotification.configure({
   onNotification: function(notification) {
@@ -282,6 +284,18 @@ const insets = useSafeAreaInsets();
     }, 800);
   }
 }, [ tasks]);
+ let timeoutId;
+  useEffect(() => {
+    if (menuVisible) {
+      timeoutId = setTimeout(() => {
+        setMenuVisible(false);
+      }, 3000);
+    }
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [menuVisible]);
 
 const renderItem = ({ item,index }) => {
   const isOverdue = new Date(item.dueDate) < new Date();
@@ -448,7 +462,7 @@ const renderLeftActions = () => (
     <SafeAreaProvider><StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
    <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent', paddingTop: insets.top    }}>
-       <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
+       
 
     <View style={[styles.container,{position:"relative",flex:1}]}>
              <TouchableOpacity
@@ -553,7 +567,7 @@ const renderLeftActions = () => (
           )}
         </>
       )}
-    </View></TouchableWithoutFeedback></SafeAreaView></SafeAreaProvider>
+    </View></SafeAreaView></SafeAreaProvider>
   );
 };
 

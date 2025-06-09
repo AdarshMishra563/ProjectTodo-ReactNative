@@ -61,7 +61,7 @@ const Dashboard = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.userInfo}>
-        <Image source={{ uri: user.picture }} style={styles.avatar} />
+        <Image source={{ uri: user.picture?user.picture:'https://up.yimg.com/ib/th?id=OIP.UzzlrDvFoX5QUT4uuDQIdgHaHa&pid=Api&rs=1&c=1&qlt=95&w=104&h=104' }} style={styles.avatar} />
         <Text style={styles.userName}>{user.name}</Text>
       </View>
 
@@ -99,7 +99,7 @@ const Dashboard = () => {
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20 },
+  container: { padding: 20 ,marginTop:20},
   userInfo: { flexDirection: 'row', alignItems: 'center', marginBottom: 20 },
   avatar: { width: 60, height: 60, borderRadius: 30, marginRight: 15 },
   userName: { fontSize: 20, fontWeight: 'bold' },
