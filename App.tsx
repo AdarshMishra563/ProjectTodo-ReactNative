@@ -1,5 +1,5 @@
 import { View, Text } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from './Pages/Login';
@@ -9,7 +9,7 @@ import { persistor, store } from './redux/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import ForgotPassword from './Pages/ForgotPassword';
 import Dashboard from './Pages/Dashboard';
-
+import { PermissionsAndroid, Platform } from 'react-native';
 const Stack = createNativeStackNavigator();
 export default function App() {
 
@@ -29,6 +29,13 @@ export default function App() {
 
 const AppNavigator = () => {
   const { token, user } = useSelector(state => state.user);
+  useEffect(() => {
+  if (Platform.OS === 'android' && Platform.Version >= 33) {
+    PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS).then((granted) => {
+      console.log("Notification permission: ", granted);
+    });
+  }
+}, [])
 
   return (
     <Stack.Navigator

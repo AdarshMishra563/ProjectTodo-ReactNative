@@ -43,11 +43,16 @@ useEffect(() => {
     {
       channelId: 'task-channel',
       channelName: 'Task Notifications',
+       channelDescription: "A channel to categorise task notifications",
+    importance: 4, // 4 = high
+    vibrate: true,
     },
     (created) => console.log(`createChannel returned '${created}'`)
   );
 }, []);
 const triggerNotification = (title, message, imageUrl) => {
+
+  console.log(title,message)
   PushNotification.localNotification({
     channelId: 'task-channel',
     title: title,

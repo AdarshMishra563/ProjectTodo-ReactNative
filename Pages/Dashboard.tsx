@@ -13,6 +13,7 @@ import { Filter } from 'react-native-svg';
 import FilterComponent from './Filter';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
+import PushNotification from 'react-native-push-notification';
 import { SafeAreaProvider, useSafeAreaInsets  } from 'react-native-safe-area-context';
 const TaskDashboard = ({ onClick, j }) => {
   const [tasks, setTasks] = useState([]);
@@ -31,6 +32,73 @@ const TaskDashboard = ({ onClick, j }) => {
 const navigation=useNavigation();
   const { token ,user} = useSelector(state => state.user);
   const dispatch=useDispatch();
+
+
+  PushNotification.configure({
+  onNotification: function(notification) {
+    console.log('NOTIFICATION:', notification);
+  },
+  requestPermissions: Platform.OS === 'ios',
+});
+PushNotification.createChannel(
+  {
+    channelId: "task-reminders",
+    channelName: "Task Reminders",
+    channelDescription: "Notifications for task reminders",
+    importance: 4,
+    vibrate: true,
+  },
+  (created) => console.log(`Channel created: ${created}`)
+);
+
+const scheduleTaskNotifications = (tasks) => {
+  
+  PushNotification.cancelAllLocalNotifications();
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  tasks.forEach(task => {
+    const taskDueDate = new Date(task.dueDate);
+    taskDueDate.setHours(12, 0, 0, 0);
+
+
+    if (task.status !== 'Done') {
+      
+      if (taskDueDate.getTime() === today.getTime()) {
+        scheduleNotification(
+          task._id + '-today',
+          `"${task.title}" is due today!`,
+          `Don't forget to complete: ${task.title}`,
+          new Date(today.setHours(9, 0, 0, 0)))
+      }
+      
+     
+      if (taskDueDate.getTime() === tomorrow.getTime()) {
+        scheduleNotification(
+          task._id + '-tomorrow',
+          `"${task.title}" is due tomorrow!`,
+          `Upcoming task: ${task.title}`,
+          new Date(today.setHours(18, 0, 0, 0))
+        )
+      }
+    }
+  });
+};
+
+const scheduleNotification = (id, title, message, date) => {
+  PushNotification.localNotificationSchedule({
+    channelId: "task-reminders",
+    id: id, 
+    title: title,
+    message: message,
+    date: date,
+    allowWhileIdle: true,
+    repeatType: 'day', 
+  });
+};
   useEffect(()=>{
 
 if(!token || !user){
@@ -120,6 +188,7 @@ const insets = useSafeAreaInsets();
       });
         setTasks(sortedTasks);
         setFilteredTasks(sortedTasks)
+         scheduleTaskNotifications(sortedTasks);
         setPage(true);
       } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -155,6 +224,8 @@ const insets = useSafeAreaInsets();
     const res = await axios.put(`https://backend-taskmanagement-k0md.onrender.com/api/auth/tasks/${taskId}`, { status: 'Done' }, {
       headers: { Authorization: `${token}` }
     });
+     PushNotification.cancelLocalNotifications({ id: taskId + '-today' });
+    PushNotification.cancelLocalNotifications({ id: taskId + '-tomorrow' });
     await refreshTasks();
   } catch (err) {
     console.error('Error marking task as done:', err);
