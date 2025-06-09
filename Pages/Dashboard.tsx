@@ -25,6 +25,7 @@ const TaskDashboard = ({ onClick, j }) => {
   const [create, setcreate] = useState(false);
   const [close, setclose] = useState(false);
     const [filteredTasks, setFilteredTasks] = useState([]);
+    const [completedTaskId, setCompletedTaskId] = useState(null);
 const navigation=useNavigation();
   const { token ,user} = useSelector(state => state.user);
   const dispatch=useDispatch();
@@ -146,76 +147,171 @@ const insets = useSafeAreaInsets();
       setDeleteLoadingId(null);
     }
   };
+ const categorizeTasks = (taskList) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  const renderItem = ({ item }) => {
-    const isOverdue = new Date(item.dueDate) < new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
-    
-    const statusColor = item.status === 'Done'
-      ? 'green'
-      : item.status === 'In Progress'
-        ? 'orange'
-        : 'red';
+  const todayTasks = [];
+  const tomorrowTasks = [];
+  const upcomingTasks = [];
+  const overdueTasks = [];
 
-    return (
-      
-      <View style={styles.taskItemContainer}>
-        
-    
-        <View style={[styles.statusIndicator, { backgroundColor: statusColor }]} />
-        <View style={[styles.taskItem, isOverdue && styles.overdueTask]}>
-          <View style={styles.taskHeader}>
-            <Text style={styles.taskTitle}>{item.title}</Text>
-            <View style={[styles.priorityBadge, 
-                         { backgroundColor: item.priority === 'High' ? '#FEE2E2' : 
-                                           item.priority === 'Medium' ? '#FEF3C7' : '#D1FAE5' }]}>
-              <Text style={[styles.priorityText, 
-                          { color: item.priority === 'High' ? '#B91C1C' : 
-                                  item.priority === 'Medium' ? '#92400E' : '#065F46' }]}>
-                {item.priority}
-              </Text>
-            </View>
-          </View>
+  taskList.forEach(task => {
+    const taskDate = new Date(task.dueDate);
+    taskDate.setHours(0, 0, 0, 0);
 
-          <Text style={styles.taskDescription}>{item.description}</Text>
+    if (taskDate.getTime() < today.getTime()) {
+      overdueTasks.push(task);
+    } else if (taskDate.getTime() === today.getTime()) {
+      todayTasks.push(task);
+    } else if (taskDate.getTime() === tomorrow.getTime()) {
+      tomorrowTasks.push(task);
+    } else {
+      upcomingTasks.push(task);
+    }
+  });
 
-          <View style={styles.taskMeta}>
-         <View style={{flexDirection:"row"}}> <Feather name="calendar" size={14} color="#6B7280" />
-              <Text style={styles.metaText}>
-                {new Date(item.dueDate).toLocaleDateString()}
-                {isOverdue && <Text style={{color: '#EF4444'}}> • Overdue</Text>}
-              </Text></View>
-            <Text style={styles.taskStatus}>Status: {item.status}</Text>
-          </View>
- <View style={styles.metaItem}>
-            <Text style={styles.taskCreator}><Feather name="user" size={14} color="#6B7280" />  {  item.createdBy?.name || 'You'}</Text>
-          </View>
-         
+  return { overdueTasks, todayTasks, tomorrowTasks, upcomingTasks };
+};
 
-          <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={styles.editButton}
-              onPress={() => handleEdit(item)}
-            >
-              <Feather name="edit" size={16} color="#222222" />
-            </TouchableOpacity>
+const renderItem = ({ item }) => {
+  const isOverdue = new Date(item.dueDate) < new Date();
 
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDelete(item._id)}
-              disabled={deleteLoadingId === item._id}
-            >
-              {deleteLoadingId === item._id ? (
-                <ActivityIndicator color="black" />
-              ) : (
-                <Feather name="trash-2" size={16} color="#EF4444" />
-              )}
-            </TouchableOpacity>
+  const statusColor = item.status === 'Done'
+    ? 'green'
+    : item.status === 'In Progress'
+      ? 'orange'
+      : 'red';
+
+  return (
+    <View style={styles.taskItemContainer}>
+      <View style={[styles.statusIndicator, { backgroundColor: statusColor }]} />
+      <View style={[styles.taskItem, isOverdue && styles.overdueTask]}>
+
+        <View style={styles.taskHeader}>
+          <Text style={styles.taskTitle}>{item.title}</Text>
+          <View style={[styles.priorityBadge, {
+            backgroundColor: item.priority === 'High' ? '#FEE2E2' :
+              item.priority === 'Medium' ? '#FEF3C7' : '#D1FAE5'
+          }]}>
+            <Text style={[styles.priorityText, {
+              color: item.priority === 'High' ? '#B91C1C' :
+                item.priority === 'Medium' ? '#92400E' : '#065F46'
+            }]}>
+              {item.priority}
+            </Text>
           </View>
         </View>
+
+        <Text style={styles.taskDescription}>{item.description}</Text>
+
+        <View style={styles.taskMeta}>
+          <View style={{ flexDirection: "row" }}>
+            <Feather name="calendar" size={14} color="#6B7280" />
+            <Text style={styles.metaText}>
+              {new Date(item.dueDate).toLocaleDateString()}
+              {isOverdue && <Text style={{ color: '#EF4444' }}> • Overdue</Text>}
+            </Text>
+            
+          </View>
+          <Text style={styles.taskStatus}>Status: {item.status}</Text>
+        </View>
+
+        <View style={styles.metaItem}>
+          <Text style={styles.taskCreator}>
+            <Feather name="user" size={14} color="#6B7280" />  {item.createdBy?.name || 'You'}
+          </Text>
+        </View>
+
+     
+        <View style={styles.actionButtons}>
+  
+  <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+    {item.status !== 'Done' ? (
+      <TouchableOpacity
+        style={styles.completeButton}
+        onPress={() => markTaskAsDone(item._id)}
+        disabled={completedTaskId === item._id}
+      >
+        {completedTaskId === item._id ? (
+          <ActivityIndicator size="small" color="#10B981" />
+        ) : (
+          <>
+            <Feather name="square" size={18} color="#10B981" />
+            <Text style={styles.completeText}>Mark as Complete</Text>
+          </>
+        )}
+      </TouchableOpacity>
+    ) : (
+      <View style={{ width: 140 }} />
+    )}
+  </View>
+
+  
+  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+    <TouchableOpacity
+      style={styles.editButton}
+      onPress={() => handleEdit(item)}
+    >
+      <Feather name="edit" size={16} color="#222222" />
+    </TouchableOpacity>
+
+    <TouchableOpacity
+      style={styles.deleteButton}
+      onPress={() => handleDelete(item._id)}
+      disabled={deleteLoadingId === item._id}
+    >
+      {deleteLoadingId === item._id ? (
+        <ActivityIndicator color="black" />
+      ) : (
+        <Feather name="trash-2" size={16} color="#EF4444" />
+      )}
+    </TouchableOpacity>
+  </View>
+</View>
+
+
       </View>
-    );
-  };
+    </View>
+  );
+};
+
+ const renderTaskSections = () => {
+  const tasksToDisplay = filteredTasks.length > 0 ? filteredTasks : tasks;
+  const { overdueTasks, todayTasks, tomorrowTasks, upcomingTasks } = categorizeTasks(tasksToDisplay);
+
+  const sections = [
+    { title: 'Overdue', data: overdueTasks },
+    { title: 'Today', data: todayTasks },
+    { title: 'Tomorrow', data: tomorrowTasks },
+    { title: 'Upcoming', data: upcomingTasks },
+  ];
+
+  return (
+    <FlatList
+      data={sections}
+      renderItem={({ item }) => (
+        <View style={styles.sectionContainer}>
+          {item.data.length > 0 && <Text style={styles.sectionHeader}>{item.title}</Text>}
+          {
+            item.data.map(task => (
+              <View key={task._id}>
+                {renderItem({ item: task })}
+              </View>
+            ))
+          }
+        </View>
+      )}
+      keyExtractor={(item) => item.title}
+      contentContainerStyle={styles.listContainer}
+      refreshing={loading}
+      onRefresh={refreshTasks}
+    />
+  );
+};
 
   const refreshTasks = () => {
     setChange(prev => prev + 1);
@@ -315,15 +411,7 @@ const insets = useSafeAreaInsets();
         </View>
       ) : (
         <>
-          <FlatList
-            data={filteredTasks.length > 0 ? filteredTasks : tasks}
-            renderItem={renderItem}
-            keyExtractor={item => item._id}
-            contentContainerStyle={styles.listContainer}
-            refreshing={loading}
-            onRefresh={refreshTasks}
-          />
-
+          {renderTaskSections()}
           {modal && (
             <EditTaskModal
               isOpen={modal}
@@ -339,9 +427,24 @@ const insets = useSafeAreaInsets();
 };
 
 const styles = StyleSheet.create({
+   sectionContainer: {
+    marginBottom: 16,
+  },
+  sectionHeader: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#333',
+    paddingHorizontal: 8,
+  },
+  emptySectionText: {
+    color: '#999',
+    paddingHorizontal: 8,
+    fontStyle: 'italic',
+  },
   container: {
     flex: 1,
-    padding: 16,
+    padding: 12,
     
     backgroundColor: '#FFFFFF',
   },
@@ -368,11 +471,51 @@ const styles = StyleSheet.create({
   taskItemContainer: {
     flexDirection: 'row',
     marginBottom: 12,
+    marginLeft:14,
     borderRadius: 10,
     overflow: 'hidden',
     elevation: 3,
     backgroundColor: '#FFFFFF',
   },
+  completeContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginTop: 12,
+},
+
+checkbox: {
+  marginRight: 8,
+},
+
+actionButtons: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginTop: 12,
+},
+
+completeButton: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+
+completeText: {
+  marginLeft: 6,
+  fontSize: 13,
+  color: '#10B981',
+},
+
+editButton: {
+  marginLeft: 8,
+},
+
+deleteButton: {
+  marginLeft: 8,
+},
+
+
+
+
   statusIndicator: {
     width: 6,
     backgroundColor: 'grey',
