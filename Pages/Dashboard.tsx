@@ -20,6 +20,8 @@ const TaskDashboard = ({ onClick, j }) => {
   const [modal, setModal] = useState(false);
   const [currentTask, setCurrentTask] = useState(null);
   const [page, setPage] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+
   const [change, setChange] = useState(0);
   const [deleteLoadingId, setDeleteLoadingId] = useState(null);
   const [create, setcreate] = useState(false);
@@ -343,7 +345,7 @@ const renderItem = ({ item }) => {
     <SafeAreaProvider><StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
 
    <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent', paddingTop: insets.top    }}>
-       
+       <TouchableWithoutFeedback onPress={() => setMenuVisible(false)}>
 
     <View style={[styles.container,{position:"relative",flex:1}]}>
              <TouchableOpacity
@@ -381,23 +383,36 @@ const renderItem = ({ item }) => {
 </View>
 
 
-    <View style={{ flexDirection: 'row' }}>
+    <View style={{ flexDirection: 'row', position: 'relative' }}>
+
+     <TouchableOpacity onPress={() => setMenuVisible(true)}>
+  <Feather name="more-vertical" size={24} color="#374151" />
+</TouchableOpacity>
+ {menuVisible && (
+    <View style={styles.menuContainer}>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('Profile');
+          setMenuVisible(false);
+        }}
+        style={styles.menuItem}
+      >
+        <Feather name="user" size={18} color="#374151" />
+        <Text style={styles.menuText}>Profile</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         onPress={() => {
-        
-         dispatch(logout())
+          dispatch(logout());
+          setMenuVisible(false);
         }}
-        style={{
-          backgroundColor: '#1F2937',
-          paddingHorizontal: 10,
-          paddingVertical: 8,
-          borderRadius: 50,
-        }}
+        style={styles.menuItem}
       >
-             <Icon name="sign-out" size={22} color="gray" />
-
+        <Feather name="log-out" size={18} color="#EF4444" />
+        <Text style={styles.menuText}>Logout</Text>
       </TouchableOpacity>
+    </View>
+  )}
     </View>
 
   </View>
@@ -435,7 +450,7 @@ const renderItem = ({ item }) => {
           )}
         </>
       )}
-    </View></SafeAreaView></SafeAreaProvider>
+    </View></TouchableWithoutFeedback></SafeAreaView></SafeAreaProvider>
   );
 };
 
@@ -537,6 +552,31 @@ deleteButton: {
     fontSize: 12,
     color: '#6B7280',
     marginLeft: 4,
+  },
+   menuContainer: {
+    position: 'absolute',
+    top: 32, 
+    right: 0,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    paddingVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 1000,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  menuText: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: '#374151',
   },
   taskItem: {
     flex: 1,
