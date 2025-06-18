@@ -39,24 +39,7 @@ const AppNavigator = () => {
 
 
 
-const requestAudioPermission = async () => {
-  if (Platform.OS === 'android') {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-      {
-        title: 'Microphone Permission',
-        message: 'This app needs access to your microphone for voice input.',
-        buttonNeutral: 'Ask Me Later',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK',
-      },
-    );
-    if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-      console.log('Microphone permission denied');
-    }
-  }
-};
-requestAudioPermission();
+
   useEffect(() => {
   if (Platform.OS === 'android' && Platform.Version >= 33) {
     PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS).then((granted) => {

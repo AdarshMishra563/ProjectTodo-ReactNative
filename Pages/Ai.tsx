@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, TextInput, Button, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, Text, FlatList, StyleSheet, TouchableOpacity, PermissionsAndroid, Platform } from 'react-native';
 import { io } from 'socket.io-client';
 import { useSelector } from 'react-redux';
 import Voice from '@react-native-voice/voice';
+
 const ChatComponent = () => {
   const [socket, setSocket] = useState(null);
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
 const [isListening, setIsListening] = useState(false);
-  const { token } = useSelector((state) => state.user);
+  const { token ,user} = useSelector((state) => state.user);
 
   useEffect(() => {
     if (token) {
@@ -53,16 +54,59 @@ const [isListening, setIsListening] = useState(false);
     Voice.destroy().then(Voice.removeAllListeners);
   };
 }, []);
-  const startListening = async () => {
+const requestAudioPermission = async () => {
+  if (Platform.OS === 'android') {
     try {
-      setIsListening(true);
-      await Voice.start('en-US');
-    } catch (e) {
-      console.error(e);
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        {
+          title: 'Microphone Permission',
+          message: 'This app needs access to your microphone for voice input.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        }
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('Microphone permission granted');
+        return true;
+      } else {
+        console.log('Microphone permission denied');
+        return false;
+      }
+    } catch (err) {
+      console.warn(err);
+      return false;
     }
-  };
+  } else {
+    // iOS permission handled via Info.plist, assume true here for simplicity
+    return true;
+  }
+};
+
+ const startListening = async () => {
+  try {
+    const hasPermission = await requestAudioPermission();
+    if (!hasPermission) {
+      console.warn('Microphone permission denied');
+      return;
+    }
+
+
+
+    setIsListening(true);
+    console.log(Voice)
+    if (Voice && Voice?.start) {
+  await Voice.start('en-US');
+} else {
+  console.log('Voice module not available');
+}
+  } catch (e) {
+    console.error(e);
+  }
+};
     const stopListening = async () => {
-    try {
+    try {console.log(Voice)
       await Voice.stop();
       setIsListening(false);
     } catch (e) {
@@ -85,6 +129,20 @@ const [isListening, setIsListening] = useState(false);
       setMessage('');
     }
   };
+  const startInterview = () => {
+    if (socket) {
+      // Example — you could also get these from TextInput or user selection
+      const interviewConfig = {
+        topic: 'DSA',
+        level: 'Hard',
+        name: user.name,
+        token,
+      };
+console.log(interviewConfig)
+      socket.emit('start_interview', interviewConfig);
+    }
+  };
+
 
   return (
     <View style={styles.container}>
@@ -115,6 +173,9 @@ const [isListening, setIsListening] = useState(false);
         >
           <Text style={styles.micButtonText}>{isListening ? 'Stop' : '🎙️'}</Text>
         </TouchableOpacity>
+      </View>
+          <View style={{ marginTop: 10 }}>
+        <Button title="🎯 Start Interview" color="#6200ee" onPress={startInterview} />
       </View>
     </View>
   );
