@@ -291,6 +291,7 @@ const insets = useSafeAreaInsets();
         setMenuVisible(false);
       }, 3000);
     }
+    
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId);

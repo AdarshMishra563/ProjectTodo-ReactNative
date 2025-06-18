@@ -12,6 +12,8 @@ import Dashboard from './Pages/Dashboard';
 import { PermissionsAndroid, Platform } from 'react-native';
 import Profile from './Pages/Profile';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import ChatComponent from './Pages/Ai';
+
 const Stack = createNativeStackNavigator();
 export default function App() {
 
@@ -32,6 +34,29 @@ export default function App() {
 
 const AppNavigator = () => {
   const { token, user } = useSelector(state => state.user);
+
+
+
+
+
+const requestAudioPermission = async () => {
+  if (Platform.OS === 'android') {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+      {
+        title: 'Microphone Permission',
+        message: 'This app needs access to your microphone for voice input.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    );
+    if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('Microphone permission denied');
+    }
+  }
+};
+requestAudioPermission();
   useEffect(() => {
   if (Platform.OS === 'android' && Platform.Version >= 33) {
     PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS).then((granted) => {
@@ -48,8 +73,9 @@ const AppNavigator = () => {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="SignUp" component={SignUp} />
       <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-      <Stack.Screen name="Dashboard" component={Dashboard}   />
+      <Stack.Screen name="Dashboard" component={ChatComponent}   />
       <Stack.Screen name="Profile" component={Profile}/>
+      <Stack.Screen name="Ai" component={ChatComponent}/>
     </Stack.Navigator>
   );
 };
