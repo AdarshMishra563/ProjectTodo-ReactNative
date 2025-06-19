@@ -133,7 +133,7 @@ const requestAudioPermission = async () => {
     if (socket) {
       // Example — you could also get these from TextInput or user selection
       const interviewConfig = {
-        topic: 'DSA',
+        topic: 'React Native with coding rounds ',
         level: 'Hard',
         name: user.name,
         token,
